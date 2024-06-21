@@ -1,0 +1,14 @@
+# Out
+build
+out
+debug
+release
+
+# IDE
+.vs
+.vscode
+.cache
+CMakeSettings.json
+
+# OS
+.DS_Store
