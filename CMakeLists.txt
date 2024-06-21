@@ -4,6 +4,7 @@ project(game)
 
 set(SRC
 	"${CMAKE_SOURCE_DIR}/src/main.cpp"
+	"${CMAKE_SOURCE_DIR}/src/input.cpp"
 	"${CMAKE_SOURCE_DIR}/vendor/glad/src/glad.c"
 )
 
