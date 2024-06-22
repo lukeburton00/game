@@ -24,10 +24,10 @@ add_subdirectory("vendor/glfw")
 add_subdirectory("vendor/spdlog")
 
 target_include_directories(${PROJECT_NAME}
-PRIVATE "vendor/glm"
-PRIVATE "vendor/glad/include"
-PRIVATE "vendor/glfw/include"
-PRIVATE "vendor/spdlog/include"
+	PRIVATE "vendor/glm"
+	PRIVATE "vendor/glad/include"
+	PRIVATE "vendor/glfw/include"
+	PRIVATE "vendor/spdlog/include"
 )
 
 find_package(OpenGL REQUIRED)
