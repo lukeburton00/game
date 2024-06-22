@@ -7,7 +7,7 @@ class Game
 public:
     Game();
     ~Game();
-    void start();
+    bool start();
 
 private:
     void run();

@@ -12,19 +12,25 @@ Game::~Game()
 
 }
 
-void Game::start()
+bool Game::start()
 {
     const int WIDTH = 640;
 	const int HEIGHT = 480;
 	const std::string TITLE = "OpenGL";
 
     window = Window(WIDTH, HEIGHT, TITLE);
-    window.init();
+    if (!window.init())
+	{
+		LOGCRITICAL("Failed to create window.");
+		return false;
+	}
 
 	Input::init(window.getNativeWindow());
 
     isRunning = true;
     run();
+    
+    return true;
 }
 
 void Game::run()
