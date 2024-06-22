@@ -21,6 +21,8 @@ bool Window::init()
         return false;
 	}
 
+    /* Select highest supported OpenGL version if on Mac OS,
+    otherwise select the most recent version */
     #if defined(__APPLE__) || defined(__MACH__)
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
