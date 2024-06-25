@@ -6,6 +6,7 @@
 #include <unordered_map>
 
 #include "event.hpp"
+#include "log.hpp"
 
 class EventDispatcher 
 {
@@ -15,32 +16,48 @@ public:
     template <typename T>
     using EventCallback = std::function<void(const T&)>;
 
+    using SubscriptionHandle = size_t;
+
     template<typename T>
-    void subscribe(const EventCallback<T>& callback) 
+    SubscriptionHandle subscribe(const EventCallback<T>& callback) 
     {
-        m_Subscribers[typeid(T)].push_back([callback](const Event& event) 
+        auto handle = m_NextHandle++;
+        m_Subscribers[typeid(T)].emplace_back(handle, [callback](const Event& event) 
         {
             callback(static_cast<const T&>(event));
         });
+        return handle;
     }
 
     template<typename T>
-    void unsubscribe(const EventCallback<T>& callback) 
+    void unsubscribe(SubscriptionHandle handle) 
     {
-        auto& subscribers = m_Subscribers[typeid(T)];
-        subscribers.erase(std::remove(subscribers.begin(), subscribers.end(), callback), subscribers.end());
+        for (auto& kv: m_Subscribers)
+        {
+            LOGINFO("Unsubscribing");
+            auto& subscribers = kv.second;
+            subscribers.erase(std::remove_if(subscribers.begin(), subscribers.end(), 
+                [handle](const std::pair<SubscriptionHandle, std::function<void(const Event&)>>& pair) 
+                {
+                    return pair.first == handle;
+                }), subscribers.end());
+        }
     }
 
     template<typename T>
     void dispatch(const T& event) 
     {
         auto& subscribers = m_Subscribers[typeid(T)];
-        for (auto& callback : subscribers) 
+        for (auto& subscriber : subscribers) 
         {
-            callback(event);
+            subscriber.second(event);
         }
     }
     
 private:
-    std::unordered_map<std::type_index, std::vector<std::function<void(const Event&)>>> m_Subscribers;
+    SubscriptionHandle m_NextHandle = 0;
+    
+    std::unordered_map
+        <std::type_index, std::vector<
+        std::pair<SubscriptionHandle, std::function<void(const Event&)>>>> m_Subscribers;
 };
