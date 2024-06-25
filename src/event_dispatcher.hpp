@@ -7,7 +7,8 @@
 
 #include "event.hpp"
 
-class EventDispatcher {
+class EventDispatcher 
+{
 public:
     EventDispatcher() = default;
 
@@ -15,22 +16,27 @@ public:
     using EventCallback = std::function<void(const T&)>;
 
     template<typename T>
-    void subscribe(const EventCallback<T>& callback) {
-        m_Subscribers[typeid(T)].push_back([callback](const Event& event) {
+    void subscribe(const EventCallback<T>& callback) 
+    {
+        m_Subscribers[typeid(T)].push_back([callback](const Event& event) 
+        {
             callback(static_cast<const T&>(event));
         });
     }
 
     template<typename T>
-    void unsubscribe(const EventCallback<T>& callback) {
+    void unsubscribe(const EventCallback<T>& callback) 
+    {
         auto& subscribers = m_Subscribers[typeid(T)];
         subscribers.erase(std::remove(subscribers.begin(), subscribers.end(), callback), subscribers.end());
     }
 
     template<typename T>
-    void dispatch(const T& event) {
+    void dispatch(const T& event) 
+    {
         auto& subscribers = m_Subscribers[typeid(T)];
-        for (auto& callback : subscribers) {
+        for (auto& callback : subscribers) 
+        {
             callback(event);
         }
     }
