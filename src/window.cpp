@@ -57,8 +57,8 @@ bool Window::init()
         m_WindowProperties.height = event.height;
     });
 
-    glfwSetWindowUserPointer(m_Window, this);
     glfwSetErrorCallback(glfwErrorCallback);
+    
     glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
     {
         LOGINFO("Window resized to {} x {}", width, height);
