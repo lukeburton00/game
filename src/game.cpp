@@ -2,9 +2,17 @@
 
 #include "input.hpp"
 
+Game* Game::m_instance = nullptr;
+
 Game::Game()
 {
+    m_instance = this;
     isRunning = false;
+
+    m_dispatcher.subscribe<WindowCloseEvent>([&](auto& event)
+    {
+        isRunning = false;
+    });
 }
 
 Game::~Game()
@@ -18,14 +26,14 @@ bool Game::start()
 	const int HEIGHT = 480;
 	const std::string TITLE = "OpenGL";
 
-    window = Window(WIDTH, HEIGHT, TITLE);
-    if (!window.init())
+    m_window = Window(WIDTH, HEIGHT, TITLE);
+    if (!m_window.init())
 	{
 		LOGCRITICAL("Failed to create window.");
 		return false;
 	}
 
-	Input::init(window.getNativeWindow());
+	Input::init(m_window.getNativeWindow());
 
     isRunning = true;
     run();
@@ -33,9 +41,14 @@ bool Game::start()
     return true;
 }
 
+Game& Game::get()
+{
+    return *m_instance;
+}
+
 void Game::run()
 {
-    while(!glfwWindowShouldClose(window.getNativeWindow()))
+    while(isRunning)
 	{
 		update();
         render();
@@ -46,13 +59,13 @@ void Game::update()
 {
     if (Input::isKeyPressed(Input::KeyCode::Escape))
     {
-        glfwSetWindowShouldClose(window.getNativeWindow(), true);
+        glfwSetWindowShouldClose(m_window.getNativeWindow(), true);
     }
 }
 
 void Game::render()
 {
-    window.clear(glm::vec3(1.f, 1.f, 1.f));
+    m_window.clear(glm::vec3(1.f, 1.f, 1.f));
 
-    window.swapBuffers();
+    m_window.swapBuffers();
 }

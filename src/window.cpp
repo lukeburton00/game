@@ -1,6 +1,12 @@
 #include "window.hpp"
 
 #include "log.hpp"
+#include "game.hpp"
+
+static void glfwErrorCallback(int error, const char* message)
+{
+    LOGCRITICAL("GLFW Error: {} - {}", error, message);
+}
 
 Window::Window(const uint32_t& width, const uint32_t& height, const std::string& title)
 {
@@ -44,6 +50,63 @@ bool Window::init()
     glfwMakeContextCurrent(m_Window);
 
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+
+    Game::get().getEventDispatcher().subscribe<WindowResizeEvent>([&](const WindowResizeEvent& event)
+    {
+        m_WindowProperties.width = event.width;
+        m_WindowProperties.height = event.height;
+    });
+
+    glfwSetWindowUserPointer(m_Window, this);
+    glfwSetErrorCallback(glfwErrorCallback);
+    glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
+    {
+        LOGINFO("Window resized to {} x {}", width, height);
+        Game::get().getEventDispatcher().dispatch<WindowResizeEvent>(WindowResizeEvent(width, height));
+    });
+
+    glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window)
+    {
+        LOGINFO("Window closed");
+        Game::get().getEventDispatcher().dispatch<WindowCloseEvent>(WindowCloseEvent());
+    });
+
+    glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
+    {
+		if (action == GLFW_PRESS)
+			LOGINFO("Key {} pressed with mods {}", key, mods);
+            Game::get().getEventDispatcher().dispatch<KeyPressedEvent>(KeyPressedEvent(key, mods));
+
+		if (action == GLFW_RELEASE)
+			LOGINFO("Key {} released with mods {}", key, mods);
+            Game::get().getEventDispatcher().dispatch<KeyReleasedEvent>(KeyReleasedEvent(key, mods));
+
+		if (action == GLFW_REPEAT)
+		    LOGINFO("Key {} repeated with mods {}", key, mods);
+            Game::get().getEventDispatcher().dispatch<KeyRepeatedEvent>(KeyRepeatedEvent(key, mods));
+    });
+
+    glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods)
+    {
+		if (action == GLFW_PRESS)
+			LOGINFO("Mouse button {} pressed with mods {}", button, mods);
+            Game::get().getEventDispatcher().dispatch<MouseButtonPressedEvent>(MouseButtonPressedEvent(button, mods));
+
+		if (action == GLFW_RELEASE)
+			LOGINFO("Mouse button {} released with mods {}", button, mods);
+            Game::get().getEventDispatcher().dispatch<MouseButtonReleasedEvent>(MouseButtonReleasedEvent(button, mods));
+
+		if (action == GLFW_REPEAT)
+		    LOGINFO("Mouse button {} repeated with mods {}", button, mods);
+            Game::get().getEventDispatcher().dispatch<MouseButtonRepeatedEvent>(MouseButtonRepeatedEvent(button, mods));
+    });
+
+    glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xoffset, double yoffset)
+    {
+        LOGINFO("Mouse scroll X: {} Y: {}", xoffset, yoffset);
+        Game::get().getEventDispatcher().dispatch<MouseWheelEvent>(MouseWheelEvent(xoffset, yoffset));
+    });
+
 
 	LOGINFO("OpenGL version {}", (char*)glGetString(GL_VERSION));
 	LOGINFO("Graphics device: {}", (char*)glGetString(GL_RENDERER));
