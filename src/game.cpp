@@ -59,7 +59,7 @@ void Game::update()
 {
     if (Input::isKeyPressed(Input::KeyCode::Escape))
     {
-        glfwSetWindowShouldClose(m_window.getNativeWindow(), true);
+        isRunning = false;
     }
 }
 
