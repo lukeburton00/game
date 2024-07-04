@@ -55,6 +55,7 @@ bool Window::init()
     {
         m_WindowProperties.width = event.width;
         m_WindowProperties.height = event.height;
+        glViewport(0, 0, event.width, event.height);
     });
 
     glfwSetErrorCallback(glfwErrorCallback);
