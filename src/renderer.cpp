@@ -12,6 +12,8 @@ Renderer::Renderer()
 Renderer::~Renderer()
 {
 	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &EBO);
+	glDeleteVertexArrays(1, &VAO);
 }
 
 void Renderer::init()
@@ -20,7 +22,7 @@ void Renderer::init()
 	vertices.push_back(Vertex(glm::vec3(0.5f, 0.5f, 0.f),		glm::vec3(1.f, 0.f, 0.f),	glm::vec2(1.f, 1.f)));
 	vertices.push_back(Vertex(glm::vec3(0.5f, -0.5f, 0.f),		glm::vec3(0.f, 1.f, 0.f),	glm::vec2(1.f, 0.f)));
 	vertices.push_back(Vertex(glm::vec3(-0.5f, -0.5f, 0.f),		glm::vec3(0.f, 0.f, 1.f),	glm::vec2(0.f, 0.f)));
-	vertices.push_back(Vertex(glm::vec3(-0.5f, 0.5f, 0.f),		glm::vec3(0.f, 0.f, 0.f),	glm::vec2(0.f, 1.f)));
+	vertices.push_back(Vertex(glm::vec3(-0.5f, 0.5f, 0.f),		glm::vec3(1.f, 1.f, 0.f),	glm::vec2(0.f, 1.f)));
 
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
@@ -52,14 +54,19 @@ void Renderer::init()
 
 	shader = Shader::LoadFromFile("../../assets/vertex.glsl", "../../assets/fragment.glsl");
 	texture = Texture::LoadFromFile("../../assets/container.jpg");
+	texture2 = Texture::LoadFromFile("../../assets/awesomeface.jpg");
 }
 
 void Renderer::render()
 {
-	float timeVal = glfwGetTime();
-	float greenValue = (sin(timeVal / 2.f) + 0.5f);
 	shader->Use();
-	shader->SetVec4("sinColor", glm::vec4(0.f, greenValue, 0.f, 0.f));
+	shader->SetInt("outTexture", 0);
+	shader->SetInt("outTexture2", 1);
+
+	glActiveTexture(GL_TEXTURE0);
+	texture->Bind();
+	glActiveTexture(GL_TEXTURE1);
+	texture2->Bind();
 	
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

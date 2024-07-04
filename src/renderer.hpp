@@ -24,4 +24,5 @@ private:
 	std::vector<Vertex> vertices;
 	std::shared_ptr<Shader> shader;
 	std::shared_ptr<Texture> texture;
+	std::shared_ptr<Texture> texture2;
 };
