@@ -15,6 +15,11 @@ Shader::Shader(uint32_t id)
 	mID = id;
 }
 
+Shader::~Shader()
+{
+	glDeleteProgram(mID);
+}
+
 void Shader::Use()
 {
 	glUseProgram(mID);

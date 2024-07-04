@@ -13,6 +13,11 @@ Texture::Texture(uint32_t id)
     mID = id;
 }
 
+Texture::~Texture()
+{
+    glDeleteTextures(1, &mID);
+}
+
 uint32_t Texture::GetID() const
 {
     return mID;

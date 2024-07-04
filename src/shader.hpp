@@ -9,7 +9,7 @@ class Shader
 {
 public:
 	Shader(uint32_t id);
-	~Shader() = default;
+	~Shader();
 	void Use();
 
 	void SetBool(const std::string& name, bool value) const;

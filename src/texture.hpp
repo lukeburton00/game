@@ -9,7 +9,7 @@ class Texture
 {
 public:
     Texture(uint32_t id);
-    ~Texture() = default;
+    ~Texture();
     uint32_t GetID() const;
     void Bind();
     static std::shared_ptr<Texture> LoadFromFile(const std::string& path);
