@@ -5,12 +5,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 project(game)
 
 set(SRC
-	"${CMAKE_SOURCE_DIR}/src/main.cpp"
-	"${CMAKE_SOURCE_DIR}/src/game.cpp"
-	"${CMAKE_SOURCE_DIR}/src/input.cpp"
-	"${CMAKE_SOURCE_DIR}/src/window.cpp"
-	"${CMAKE_SOURCE_DIR}/vendor/glad/src/glad.c"
-)
+ "vendor/glad/src/glad.c"
+ "vendor/stb/stb_image.cpp"
+ "src/main.cpp"
+ "src/game.cpp"
+ "src/input.cpp"
+ "src/window.cpp"
+ "src/renderer.cpp"
+ "src/shader.cpp"
+ "src/texture.cpp")
 
 add_executable(${PROJECT_NAME} ${SRC})
 
@@ -30,6 +33,7 @@ target_include_directories(${PROJECT_NAME}
 	PRIVATE "vendor/glad/include"
 	PRIVATE "vendor/glfw/include"
 	PRIVATE "vendor/spdlog/include"
+	PRIVATE "vendor/stb"
 )
 
 find_package(OpenGL REQUIRED)
