@@ -34,6 +34,7 @@ bool Game::start()
 	}
 
 	Input::init(m_window.getNativeWindow());
+    renderer.init();
 
     isRunning = true;
     run();
@@ -65,7 +66,9 @@ void Game::update()
 
 void Game::render()
 {
-    m_window.clear(glm::vec3(1.f, 1.f, 1.f));
+    m_window.clear(glm::vec3(0.5f, 0.5f, 0.5f));
+
+    renderer.render();
 
     m_window.swapBuffers();
 }

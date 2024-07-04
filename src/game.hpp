@@ -1,6 +1,7 @@
 #pragma once
 
 #include "window.hpp"
+#include "renderer.hpp"
 #include "event_dispatcher.hpp"
 
 class Game 
@@ -22,6 +23,7 @@ private:
     Window m_window;
     bool isRunning;
     EventDispatcher m_dispatcher;
+    Renderer renderer;
 
     static Game* m_instance;
 };
