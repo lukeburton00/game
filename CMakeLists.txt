@@ -15,7 +15,10 @@ set(SRC
  "src/shader.cpp"
  "src/texture.cpp")
 
+
 add_executable(${PROJECT_NAME} ${SRC})
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 if (MSVC)
 	add_compile_options(/W4)
