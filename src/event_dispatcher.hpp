@@ -4,6 +4,7 @@
 #include <typeindex>
 #include <functional>
 #include <unordered_map>
+#include <algorithm>
 
 #include "event.hpp"
 #include "log.hpp"
