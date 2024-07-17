@@ -2,8 +2,6 @@
 
 #include <vector>
 
-#include <glad/glad.h>
-
 #include "shader.hpp"
 #include "texture.hpp"
 #include "vertex.hpp"

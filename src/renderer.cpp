@@ -1,8 +1,6 @@
 #include "renderer.hpp"
 
-#include "GLFW/glfw3.h"
-
-#include "log.hpp"
+#include <glad/glad.h>
 
 Renderer::Renderer()
 {
@@ -30,7 +28,7 @@ void Renderer::init()
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
-	
+
 	glEnableVertexAttribArray(0);
 
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),	(void*)offsetof(Vertex, color));
@@ -67,7 +65,7 @@ void Renderer::render()
 	texture->Bind();
 	glActiveTexture(GL_TEXTURE1);
 	texture2->Bind();
-	
+
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
