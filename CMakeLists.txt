@@ -15,8 +15,8 @@ set(SRC
  "src/window.cpp"
  "src/renderer.cpp"
  "src/shader.cpp"
+ "src/filesystem.cpp"
  "src/texture.cpp")
-
 
 add_executable(${PROJECT_NAME} ${SRC})
 
