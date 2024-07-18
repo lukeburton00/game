@@ -50,9 +50,9 @@ void Renderer::init()
 
 	glBindVertexArray(0);
 
-	shader = Shader::LoadFromFile("../../assets/vertex.glsl", "../../assets/fragment.glsl");
-	texture = Texture::LoadFromFile("../../assets/container.jpg");
-	texture2 = Texture::LoadFromFile("../../assets/awesomeface.jpg");
+	shader = Shader::LoadFromFile("vertex.glsl", "fragment.glsl");
+	texture = Texture::LoadFromFile("container.jpg");
+	texture2 = Texture::LoadFromFile("awesomeface.jpg");
 }
 
 void Renderer::render()
