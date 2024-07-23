@@ -37,7 +37,7 @@ bool Window::init()
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     #endif
-    
+
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	if (!(m_Window = glfwCreateWindow(m_WindowProperties.width, m_WindowProperties.height, m_WindowProperties.title.c_str(), nullptr, nullptr)))
@@ -59,7 +59,7 @@ bool Window::init()
     });
 
     glfwSetErrorCallback(glfwErrorCallback);
-    
+
     glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
     {
         LOGINFO("Window resized to {} x {}", width, height);
@@ -127,6 +127,16 @@ void Window::swapBuffers() const
 {
     glfwSwapBuffers(m_Window);
     glfwPollEvents();
+}
+
+int Window::getWidth()
+{
+    return m_WindowProperties.width;
+}
+
+int Window::getHeight()
+{
+    return m_WindowProperties.height;
 }
 
 GLFWwindow* Window::getNativeWindow() const
