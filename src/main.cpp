@@ -13,11 +13,11 @@ int main(int argc, char** argv)
 
     else
     {
-        LOGERROR("Could not find executable path.");
+        LOGCRITICAL("Could not find executable path.");
         return 1;
     }
 
-    auto assets_path = FileSystem::findDirUp(exec_path.value(), "assets", 3);
+    auto assets_path = FileSystem::findDirUp(exec_path.value(), "assets", 2);
     if (assets_path.has_value())
     {
         FileSystem::setCurrentPath(assets_path.value());
@@ -26,7 +26,7 @@ int main(int argc, char** argv)
 
     else
     {
-        LOGERROR("Could not find assets path.");
+        LOGCRITICAL("Could not find assets path.");
         return 1;
     }
 
