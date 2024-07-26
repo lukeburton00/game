@@ -1,5 +1,7 @@
 #include "window.hpp"
 
+#include "GLFW/glfw3.h"
+#include "event.hpp"
 #include "log.hpp"
 #include "game.hpp"
 
@@ -19,8 +21,10 @@ Window::~Window()
     glfwTerminate();
 }
 
-bool Window::init()
+bool Window::init(std::shared_ptr<EventManager> event_manager)
 {
+    m_Publisher.setEventManager(event_manager);
+
 	if (!glfwInit())
 	{
 		LOGCRITICAL("Failed to initialize GLFW.");
@@ -51,7 +55,7 @@ bool Window::init()
 
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
-    Game::get().getEventDispatcher().subscribe<WindowResizeEvent>([&](const WindowResizeEvent& event)
+    event_manager->subscribe<WindowResizeEvent>([&](const WindowResizeEvent& event)
     {
         m_WindowProperties.width = event.width;
         m_WindowProperties.height = event.height;
@@ -59,53 +63,72 @@ bool Window::init()
     });
 
     glfwSetErrorCallback(glfwErrorCallback);
+    glfwSetWindowUserPointer(m_Window, this);
 
     glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
     {
         LOGINFO("Window resized to {} x {}", width, height);
-        Game::get().getEventDispatcher().dispatch<WindowResizeEvent>(WindowResizeEvent(width, height));
+        auto win = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+        win->m_Publisher.publish<WindowResizeEvent>(WindowResizeEvent(width, height));
     });
 
     glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window)
     {
         LOGINFO("Window closed");
-        Game::get().getEventDispatcher().dispatch<WindowCloseEvent>(WindowCloseEvent());
+        auto win = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+        win->m_Publisher.publish<WindowCloseEvent>(WindowCloseEvent());
     });
 
     glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
     {
+		auto win = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
 		if (action == GLFW_PRESS)
+		{
 			LOGINFO("Key {} pressed with mods {}", key, mods);
-            Game::get().getEventDispatcher().dispatch<KeyPressedEvent>(KeyPressedEvent(key, mods));
+            win->m_Publisher.publish<KeyPressedEvent>(KeyPressedEvent(key, mods));
+		}
 
 		if (action == GLFW_RELEASE)
+		{
 			LOGINFO("Key {} released with mods {}", key, mods);
-            Game::get().getEventDispatcher().dispatch<KeyReleasedEvent>(KeyReleasedEvent(key, mods));
+            win->m_Publisher.publish<KeyReleasedEvent>(KeyReleasedEvent(key, mods));
+		}
 
 		if (action == GLFW_REPEAT)
+		{
 		    LOGINFO("Key {} repeated with mods {}", key, mods);
-            Game::get().getEventDispatcher().dispatch<KeyRepeatedEvent>(KeyRepeatedEvent(key, mods));
+            win->m_Publisher.publish<KeyRepeatedEvent>(KeyRepeatedEvent(key, mods));
+		}
     });
 
     glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods)
     {
+        auto win = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
 		if (action == GLFW_PRESS)
+		{
 			LOGINFO("Mouse button {} pressed with mods {}", button, mods);
-            Game::get().getEventDispatcher().dispatch<MouseButtonPressedEvent>(MouseButtonPressedEvent(button, mods));
+            win->m_Publisher.publish<MouseButtonPressedEvent>(MouseButtonPressedEvent(button, mods));
+		}
 
 		if (action == GLFW_RELEASE)
+		{
 			LOGINFO("Mouse button {} released with mods {}", button, mods);
-            Game::get().getEventDispatcher().dispatch<MouseButtonReleasedEvent>(MouseButtonReleasedEvent(button, mods));
+            win->m_Publisher.publish<MouseButtonReleasedEvent>(MouseButtonReleasedEvent(button, mods));
+		}
 
 		if (action == GLFW_REPEAT)
+		{
 		    LOGINFO("Mouse button {} repeated with mods {}", button, mods);
-            Game::get().getEventDispatcher().dispatch<MouseButtonRepeatedEvent>(MouseButtonRepeatedEvent(button, mods));
+            win->m_Publisher.publish<MouseButtonRepeatedEvent>(MouseButtonRepeatedEvent(button, mods));
+		}
     });
 
     glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xoffset, double yoffset)
     {
+        auto win = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
         LOGINFO("Mouse scroll X: {} Y: {}", xoffset, yoffset);
-        Game::get().getEventDispatcher().dispatch<MouseWheelEvent>(MouseWheelEvent(xoffset, yoffset));
+        win->m_Publisher.publish<MouseWheelEvent>(MouseWheelEvent(xoffset, yoffset));
+
     });
 
 
