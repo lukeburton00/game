@@ -32,7 +32,7 @@ void Renderer::init()
     width = Game::get().getWindow().getWidth();
     height = Game::get().getWindow().getHeight();
 
-    Game::get().getEventDispatcher().subscribe<WindowResizeEvent>([&](const WindowResizeEvent& event)
+    Game::get().getEventManager().subscribe<WindowResizeEvent>([&](const WindowResizeEvent& event)
     {
         width = event.width;
         height = event.height;
