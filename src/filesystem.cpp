@@ -51,7 +51,7 @@ namespace FileSystem
 
             if (path == path.root_path())
                 break;
-            
+
             path = path.parent_path();
             current_level++;
         }
