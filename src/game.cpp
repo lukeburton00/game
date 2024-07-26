@@ -1,5 +1,7 @@
 #include "game.hpp"
 
+#include "event.hpp"
+#include "event_manager.hpp"
 #include "input.hpp"
 
 Game* Game::m_instance = nullptr;
@@ -9,7 +11,7 @@ Game::Game()
     m_instance = this;
     isRunning = false;
 
-    m_dispatcher.subscribe<WindowCloseEvent>([&](auto& event)
+    m_EventManager.subscribe<WindowCloseEvent>([&](auto& event)
     {
         isRunning = false;
     });
@@ -27,18 +29,18 @@ bool Game::start()
 	const std::string TITLE = "OpenGL";
 
     m_window = Window(WIDTH, HEIGHT, TITLE);
-    if (!m_window.init())
+    if (!m_window.init(std::make_shared<EventManager>(m_EventManager)))
 	{
 		LOGCRITICAL("Failed to create window.");
 		return false;
 	}
 
-	Input::init(m_window.getNativeWindow());
+	Input::setWindow(m_window.getNativeWindow());
     renderer.init();
 
     isRunning = true;
     run();
-    
+
     return true;
 }
 

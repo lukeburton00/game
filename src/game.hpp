@@ -2,16 +2,16 @@
 
 #include "window.hpp"
 #include "renderer.hpp"
-#include "event_dispatcher.hpp"
+#include "event_manager.hpp"
 
-class Game 
+class Game
 {
 public:
     Game();
     ~Game();
     bool start();
     static Game& get();
-    EventDispatcher& getEventDispatcher() { return m_dispatcher; }
+    EventManager& getEventManager() { return m_EventManager; }
     Window& getWindow() { return m_window; }
 
 private:
@@ -22,7 +22,7 @@ private:
 private:
     Window m_window;
     bool isRunning;
-    EventDispatcher m_dispatcher;
+    EventManager m_EventManager;
     Renderer renderer;
 
     static Game* m_instance;
