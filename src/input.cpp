@@ -1,10 +1,10 @@
 #include "input.hpp"
 
-namespace Input 
+namespace Input
 {
     static GLFWwindow *window;
 
-    void init(GLFWwindow *win)
+    void setWindow(GLFWwindow *win)
     {
         window = win;
     }
