@@ -11,5 +11,5 @@
 #else
 	#define LOGINFO(...)
 	#define LOGWARN(...)
-    #define LOGERROR(...) 
+    #define LOGERROR(...)
 #endif
