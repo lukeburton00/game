@@ -1,8 +1,9 @@
 #include "game.hpp"
 
+#include "input.hpp"
+#include "filesystem.hpp"
 #include "event.hpp"
 #include "event_manager.hpp"
-#include "input.hpp"
 
 Game* Game::m_instance = nullptr;
 
@@ -23,8 +24,38 @@ Game::~Game()
 
 }
 
+bool Game::initPaths()
+{
+    auto exec_path = FileSystem::getExecPath();
+    if (!exec_path.has_value())
+    {
+        LOGCRITICAL("Could not find executable path.");
+        return false;
+    }
+
+    LOGINFO("Executable path: {}", exec_path.value().string());
+
+    auto assets_path = FileSystem::findDirUp(exec_path.value(), "assets", 2);
+    if (!assets_path.has_value())
+    {
+        LOGCRITICAL("Could not find assets path.");
+        return false;
+    }
+
+    LOGINFO("Assets path: {}", assets_path.value().string());
+    FileSystem::setCurrentPath(assets_path.value());
+
+    return true;
+}
+
 bool Game::start()
 {
+    if (!initPaths())
+    {
+        LOGCRITICAL("Failed to initialize paths.");
+        return false;
+    }
+
     const int WIDTH = 640;
 	const int HEIGHT = 480;
 	const std::string TITLE = "OpenGL";

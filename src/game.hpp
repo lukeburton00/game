@@ -9,7 +9,9 @@ class Game
 public:
     Game();
     ~Game();
+    bool initPaths();
     bool start();
+
     static Game& get();
     std::shared_ptr<EventManager> getEventManager() { return m_EventManager; }
     Window& getWindow() { return m_window; }
