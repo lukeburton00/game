@@ -62,6 +62,6 @@ private:
         std::pair<SubscriptionHandle, std::function<void(const Event&)>>>> m_Subscribers;
 
 
-    // only allow window class to dispatch events
+    // only allow EventPublisher class to dispatch events
     friend class EventPublisher;
 };
