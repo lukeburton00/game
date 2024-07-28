@@ -11,7 +11,7 @@ public:
     ~Game();
     bool start();
     static Game& get();
-    EventManager& getEventManager() { return m_EventManager; }
+    std::shared_ptr<EventManager> getEventManager() { return m_EventManager; }
     Window& getWindow() { return m_window; }
 
 private:
@@ -22,8 +22,9 @@ private:
 private:
     Window m_window;
     bool isRunning;
-    EventManager m_EventManager;
+
     Renderer renderer;
 
+    std::shared_ptr<EventManager> m_EventManager;
     static Game* m_instance;
 };

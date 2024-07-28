@@ -7,9 +7,11 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "event.hpp"
+#include "event_manager.hpp"
 #include "game.hpp"
 #include "input.hpp"
 #include "keycodes.hpp"
+#include "log.hpp"
 
 Renderer::Renderer()
 {
@@ -27,12 +29,12 @@ Renderer::~Renderer()
 	glDeleteVertexArrays(1, &VAO);
 }
 
-void Renderer::init()
+void Renderer::init(std::shared_ptr<EventManager> event_manager)
 {
     width = Game::get().getWindow().getWidth();
     height = Game::get().getWindow().getHeight();
 
-    Game::get().getEventManager().subscribe<WindowResizeEvent>([&](const WindowResizeEvent& event)
+    event_manager->subscribe<WindowResizeEvent>([&](const WindowResizeEvent& event)
     {
         width = event.width;
         height = event.height;

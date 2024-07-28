@@ -6,13 +6,14 @@
 
 Game* Game::m_instance = nullptr;
 
-Game::Game()
+Game::Game() : m_EventManager(std::make_shared<EventManager>(EventManager()))
 {
     m_instance = this;
     isRunning = false;
 
-    m_EventManager.subscribe<WindowCloseEvent>([&](auto& event)
+    m_EventManager->subscribe<WindowCloseEvent>([&](auto& event)
     {
+        LOGINFO("setting isRunning to false...");
         isRunning = false;
     });
 }
@@ -29,14 +30,14 @@ bool Game::start()
 	const std::string TITLE = "OpenGL";
 
     m_window = Window(WIDTH, HEIGHT, TITLE);
-    if (!m_window.init(std::make_shared<EventManager>(m_EventManager)))
+    if (!m_window.init(m_EventManager))
 	{
 		LOGCRITICAL("Failed to create window.");
 		return false;
 	}
 
 	Input::setWindow(m_window.getNativeWindow());
-    renderer.init();
+    renderer.init(m_EventManager);
 
     isRunning = true;
     run();

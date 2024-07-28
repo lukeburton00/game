@@ -2,6 +2,7 @@
 
 #include <vector>
 
+#include "event_manager.hpp"
 #include "shader.hpp"
 #include "texture.hpp"
 #include "vertex.hpp"
@@ -12,7 +13,7 @@ public:
 	Renderer();
 	~Renderer();
 
-	void init();
+	void init(std::shared_ptr<EventManager> event_manager);
 	void render();
 
 private:
