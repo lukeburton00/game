@@ -1,5 +1,7 @@
 #include "renderer.hpp"
 
+#include <excpt.h>
+#include <memory>
 #include <vector>
 
 #include <glad/glad.h>
@@ -7,7 +9,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "event.hpp"
-#include "event_manager.hpp"
+#include "event_bus.hpp"
 #include "game.hpp"
 #include "input.hpp"
 #include "keycodes.hpp"
@@ -19,7 +21,7 @@ Renderer::Renderer()
     view = glm::mat4(1.f);
     projection = glm::mat4(1.f);
 
-    fov = 10.f;
+    fov = 45.f;
 }
 
 Renderer::~Renderer()
@@ -29,17 +31,17 @@ Renderer::~Renderer()
 	glDeleteVertexArrays(1, &VAO);
 }
 
-void Renderer::init(std::shared_ptr<EventManager> event_manager)
+void Renderer::init(std::shared_ptr<EventBus> eventBus)
 {
-    width = Game::get().getWindow().getWidth();
-    height = Game::get().getWindow().getHeight();
+    eventBus->subscribe(EventType::WindowResize, [=](const std::shared_ptr<Event>& event)
+        {
+            auto e = std::static_pointer_cast<WindowResizeEvent>(event);
+            m_Width = e->width;
+            m_Height = e->height;
+        });
 
-    event_manager->subscribe<WindowResizeEvent>([&](const WindowResizeEvent& event)
-    {
-        width = event.width;
-        height = event.height;
-        projection = glm::perspective(glm::radians(fov), (float)event.width / (float)event.height, 0.1f, 100.0f);
-    });
+    m_Width = Game::get().getWindow().getWidth();
+    m_Height = Game::get().getWindow().getHeight();
 
 	//									position						  color						  texCoord
 	vertices.push_back(Vertex(glm::vec3(-0.5f, -0.5f, -0.5f),	glm::vec3(1.f, 1.f, 1.f),	glm::vec2(0.f, 0.f)));
@@ -123,7 +125,7 @@ void Renderer::init(std::shared_ptr<EventManager> event_manager)
 	shader->SetInt("outTexture2", 1);
 
 	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-	projection = glm::perspective(glm::radians(fov), (float)width / (float)height, 0.1f, 100.0f);
+	projection = glm::perspective(glm::radians(fov), (float)m_Width / (float)m_Height, 0.1f, 100.0f);
 }
 
 void Renderer::render()
@@ -158,7 +160,7 @@ void Renderer::render()
 
    	shader->SetMat4("view", view);
 
-   	projection = glm::perspective(glm::radians(fov), (float)width / (float)height, 0.1f, 100.0f);
+   	projection = glm::perspective(glm::radians(fov), (float)m_Width / (float)m_Height, 0.1f, 100.0f);
    	shader->SetMat4("projection", projection);
 
    	glActiveTexture(GL_TEXTURE0);
