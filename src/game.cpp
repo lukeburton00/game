@@ -1,22 +1,23 @@
 #include "game.hpp"
 
+#include <memory>
+
+#include "log.hpp"
 #include "input.hpp"
-#include "filesystem.hpp"
 #include "event.hpp"
-#include "event_manager.hpp"
+#include "event_bus.hpp"
+#include "filesystem.hpp"
 
 Game* Game::m_instance = nullptr;
 
-Game::Game() : m_EventManager(std::make_shared<EventManager>(EventManager()))
+Game::Game() : m_EventBus(std::make_shared<EventBus>())
 {
     m_instance = this;
     isRunning = false;
-
-    m_EventManager->subscribe<WindowCloseEvent>([&](auto& event)
-    {
-        LOGINFO("setting isRunning to false...");
-        isRunning = false;
-    });
+    m_EventBus->subscribe(EventType::WindowClose, [=](const std::shared_ptr<Event>& event)
+        {
+            isRunning = false;
+        });
 }
 
 Game::~Game()
@@ -61,14 +62,14 @@ bool Game::start()
 	const std::string TITLE = "OpenGL";
 
     m_window = Window(WIDTH, HEIGHT, TITLE);
-    if (!m_window.init(m_EventManager))
+    if (!m_window.init(m_EventBus))
 	{
 		LOGCRITICAL("Failed to create window.");
 		return false;
 	}
 
 	Input::setWindow(m_window.getNativeWindow());
-    renderer.init(m_EventManager);
+    renderer.init(m_EventBus);
 
     isRunning = true;
     run();
@@ -87,7 +88,13 @@ void Game::run()
 	{
 		update();
         render();
+	    processEvents();
     }
+}
+
+void Game::processEvents()
+{
+    m_EventBus->processEventQueue();
 }
 
 void Game::update()

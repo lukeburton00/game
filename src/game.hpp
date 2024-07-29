@@ -2,7 +2,7 @@
 
 #include "window.hpp"
 #include "renderer.hpp"
-#include "event_manager.hpp"
+#include "event_bus.hpp"
 
 class Game
 {
@@ -13,11 +13,11 @@ public:
     bool start();
 
     static Game& get();
-    std::shared_ptr<EventManager> getEventManager() { return m_EventManager; }
     Window& getWindow() { return m_window; }
 
 private:
     void run();
+    void processEvents();
     void update();
     void render();
 
@@ -27,6 +27,6 @@ private:
 
     Renderer renderer;
 
-    std::shared_ptr<EventManager> m_EventManager;
+    std::shared_ptr<EventBus> m_EventBus;
     static Game* m_instance;
 };
