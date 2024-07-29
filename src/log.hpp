@@ -1,6 +1,7 @@
 #pragma once
-#include "spdlog/spdlog.h"
-#include "spdlog/fmt/std.h"
+
+#include <spdlog/spdlog.h>
+#include <spdlog/fmt/std.h>
 
 #define LOGCRITICAL(...) spdlog::critical(__VA_ARGS__)
 
