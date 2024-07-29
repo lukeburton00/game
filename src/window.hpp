@@ -31,8 +31,8 @@ public:
     void clear(const glm::vec3& color) const;
     void swapBuffers() const;
 
-    int getWidth();
-    int getHeight();
+    int getWidth() const;
+    int getHeight() const;
     GLFWwindow* getNativeWindow() const;
 
 private:
