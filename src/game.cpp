@@ -13,10 +13,10 @@ Game* Game::m_instance = nullptr;
 Game::Game() : m_EventBus(std::make_shared<EventBus>())
 {
     m_instance = this;
-    isRunning = false;
+    m_isRunning = false;
     m_EventBus->subscribe(EventType::WindowClose, [=](const std::shared_ptr<Event>& event)
         {
-            isRunning = false;
+            m_isRunning = false;
         });
 }
 
@@ -71,7 +71,7 @@ bool Game::start()
 	Input::setWindow(m_window.getNativeWindow());
     renderer.init(m_EventBus);
 
-    isRunning = true;
+    m_isRunning = true;
     run();
 
     return true;
@@ -84,7 +84,7 @@ Game& Game::get()
 
 void Game::run()
 {
-    while(isRunning)
+    while(m_isRunning)
 	{
 		update();
         render();
@@ -101,7 +101,7 @@ void Game::update()
 {
     if (Input::isKeyPressed(Input::KeyCode::Escape))
     {
-        isRunning = false;
+        m_isRunning = false;
     }
 }
 

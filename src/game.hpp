@@ -23,7 +23,7 @@ private:
 
 private:
     Window m_window;
-    bool isRunning;
+    bool m_isRunning;
 
     Renderer renderer;
 
