@@ -1,7 +1,5 @@
 #include "texture.hpp"
 
-#include <sstream>
-#include <fstream>
 #include <memory>
 
 #include <stb_image.h>
