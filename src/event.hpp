@@ -2,7 +2,6 @@
 
 enum class EventType
 {
-    None = 0,
     WindowResize,
     WindowClose,
     WindowFocus,
@@ -21,12 +20,7 @@ enum class EventType
 
 struct Event
 {
-    Event()
-    {
-        type = EventType::None;
-    }
-
-    virtual ~Event() {}
+    virtual ~Event() = default;
     EventType type;
 };
 
