@@ -1,9 +1,9 @@
 #include "window.hpp"
 
-#include "GLFW/glfw3.h"
+#include <GLFW/glfw3.h>
+
 #include "event.hpp"
 #include "log.hpp"
-#include "game.hpp"
 
 static void glfwErrorCallback(int error, const char* message)
 {
@@ -21,9 +21,17 @@ Window::~Window()
     glfwTerminate();
 }
 
-bool Window::init(std::shared_ptr<EventManager> event_manager)
+bool Window::init(std::shared_ptr<EventBus> eventBus)
 {
-    m_Publisher.setEventManager(event_manager);
+    m_EventBus = eventBus;
+
+    m_EventBus->subscribe(EventType::WindowResize, [=](const std::shared_ptr<Event>& event)
+        {
+            auto e = std::static_pointer_cast<WindowResizeEvent>(event);
+            m_WindowProperties.width = e->width;
+            m_WindowProperties.height = e->height;
+            glViewport(0, 0, e->width, e->height);
+        });
 
 	if (!glfwInit())
 	{
@@ -55,13 +63,6 @@ bool Window::init(std::shared_ptr<EventManager> event_manager)
 
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
-    event_manager->subscribe<WindowResizeEvent>([&](const WindowResizeEvent& event)
-    {
-        m_WindowProperties.width = event.width;
-        m_WindowProperties.height = event.height;
-        glViewport(0, 0, event.width, event.height);
-    });
-
     glfwSetErrorCallback(glfwErrorCallback);
     glfwSetWindowUserPointer(m_Window, this);
 
@@ -71,65 +72,82 @@ bool Window::init(std::shared_ptr<EventManager> event_manager)
         auto win = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
         if (width == 0 && height == 0)
         {
-            win->m_Publisher.publish<WindowMinimizedEvent>(WindowMinimizedEvent());
             LOGINFO("Window minimized", width, height);
+            win->m_EventBus->pushEvent(std::make_shared<WindowMinimizedEvent>());
         }
 
         else
         {
-            win->m_Publisher.publish<WindowResizeEvent>(WindowResizeEvent(width, height));
             LOGINFO("Window resized to {} x {}", width, height);
+            win->m_EventBus->pushEvent(std::make_shared<WindowResizeEvent>(width, height));
         }
     });
 
     glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window)
     {
-        LOGINFO("Window closed");
         auto win = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
-        win->m_Publisher.publish<WindowCloseEvent>(WindowCloseEvent());
+        LOGINFO("Window closed");
+        win->m_EventBus->pushEvent(std::make_shared<WindowCloseEvent>());
     });
 
     glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
     {
 		auto win = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
-		if (action == GLFW_PRESS)
+		switch (action)
 		{
-			LOGINFO("Key {} pressed with mods {}", key, mods);
-            win->m_Publisher.publish<KeyPressedEvent>(KeyPressedEvent(key, mods));
-		}
+		    case GLFW_PRESS:
+			{
+    			LOGINFO("Key {} pressed with mods {}", key, mods);
+                win->m_EventBus->pushEvent(std::make_shared<KeyPressedEvent>(key, mods));
+                break;
+			}
 
-		else if (action == GLFW_RELEASE)
-		{
-			LOGINFO("Key {} released with mods {}", key, mods);
-            win->m_Publisher.publish<KeyReleasedEvent>(KeyReleasedEvent(key, mods));
-		}
+			case GLFW_RELEASE:
+			{
+    			LOGINFO("Key {} released with mods {}", key, mods);
+    			win->m_EventBus->pushEvent(std::make_shared<KeyReleasedEvent>(key, mods));
+                break;
+			}
 
-		else if (action == GLFW_REPEAT)
-		{
-		    LOGINFO("Key {} repeated with mods {}", key, mods);
-            win->m_Publisher.publish<KeyRepeatedEvent>(KeyRepeatedEvent(key, mods));
+			case GLFW_REPEAT:
+			{
+    		    LOGINFO("Key {} repeated with mods {}", key, mods);
+    			win->m_EventBus->pushEvent(std::make_shared<KeyRepeatedEvent>(key, mods));
+                break;
+			}
+
+			default:
+			    break;
 		}
     });
 
     glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods)
     {
         auto win = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
-		if (action == GLFW_PRESS)
+		switch (action)
 		{
-			LOGINFO("Mouse button {} pressed with mods {}", button, mods);
-            win->m_Publisher.publish<MouseButtonPressedEvent>(MouseButtonPressedEvent(button, mods));
-		}
+		    case GLFW_PRESS:
+			{
+    			LOGINFO("Mouse button {} pressed with mods {}", button, mods);
+                win->m_EventBus->pushEvent(std::make_shared<MouseButtonPressedEvent>(button, mods));
+                break;
+			}
 
-		else if (action == GLFW_RELEASE)
-		{
-			LOGINFO("Mouse button {} released with mods {}", button, mods);
-            win->m_Publisher.publish<MouseButtonReleasedEvent>(MouseButtonReleasedEvent(button, mods));
-		}
+			case GLFW_RELEASE:
+			{
+    			LOGINFO("Mouse button {} released with mods {}", button, mods);
+                win->m_EventBus->pushEvent(std::make_shared<MouseButtonReleasedEvent>(button, mods));
+                break;
+			}
 
-		else if (action == GLFW_REPEAT)
-		{
-		    LOGINFO("Mouse button {} repeated with mods {}", button, mods);
-            win->m_Publisher.publish<MouseButtonRepeatedEvent>(MouseButtonRepeatedEvent(button, mods));
+			case GLFW_REPEAT:
+			{
+    		    LOGINFO("Mouse button {} repeated with mods {}", button, mods);
+                win->m_EventBus->pushEvent(std::make_shared<MouseButtonRepeatedEvent>(button, mods));
+			}
+
+			default:
+			    break;
 		}
     });
 
@@ -137,8 +155,7 @@ bool Window::init(std::shared_ptr<EventManager> event_manager)
     {
         auto win = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
         LOGINFO("Mouse scroll X: {} Y: {}", xoffset, yoffset);
-        win->m_Publisher.publish<MouseWheelEvent>(MouseWheelEvent(xoffset, yoffset));
-
+        win->m_EventBus->pushEvent(std::make_shared<MouseWheelEvent>(xoffset, yoffset));
     });
 
 

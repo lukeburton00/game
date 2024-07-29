@@ -3,12 +3,11 @@
 #include <memory>
 #include <string>
 
-#include "event_manager.hpp"
-#include "glad/glad.h"
-#include "GLFW/glfw3.h"
-#include "glm/glm.hpp"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 
-#include "event_publisher.hpp"
+#include "event_bus.hpp"
 
 struct WindowProperties
 {
@@ -27,7 +26,7 @@ public:
     Window(const uint32_t& width, const uint32_t& height, const std::string& title);
     ~Window();
 
-    bool init(std::shared_ptr<EventManager> event_manager);
+    bool init(std::shared_ptr<EventBus> eventBus);
     void clear(const glm::vec3& color) const;
     void swapBuffers() const;
 
@@ -36,10 +35,7 @@ public:
     GLFWwindow* getNativeWindow() const;
 
 private:
-
-private:
     GLFWwindow* m_Window = nullptr;
     WindowProperties m_WindowProperties;
-    EventPublisher m_Publisher;
-
+    std::shared_ptr<EventBus> m_EventBus;
 };
