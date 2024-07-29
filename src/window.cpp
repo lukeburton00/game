@@ -69,7 +69,17 @@ bool Window::init(std::shared_ptr<EventManager> event_manager)
     {
         LOGINFO("Window resized to {} x {}", width, height);
         auto win = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
-        win->m_Publisher.publish<WindowResizeEvent>(WindowResizeEvent(width, height));
+        if (width == 0 && height == 0)
+        {
+            win->m_Publisher.publish<WindowMinimizedEvent>(WindowMinimizedEvent());
+            LOGINFO("Window minimized", width, height);
+        }
+
+        else
+        {
+            win->m_Publisher.publish<WindowResizeEvent>(WindowResizeEvent(width, height));
+            LOGINFO("Window resized to {} x {}", width, height);
+        }
     });
 
     glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window)
@@ -88,13 +98,13 @@ bool Window::init(std::shared_ptr<EventManager> event_manager)
             win->m_Publisher.publish<KeyPressedEvent>(KeyPressedEvent(key, mods));
 		}
 
-		if (action == GLFW_RELEASE)
+		else if (action == GLFW_RELEASE)
 		{
 			LOGINFO("Key {} released with mods {}", key, mods);
             win->m_Publisher.publish<KeyReleasedEvent>(KeyReleasedEvent(key, mods));
 		}
 
-		if (action == GLFW_REPEAT)
+		else if (action == GLFW_REPEAT)
 		{
 		    LOGINFO("Key {} repeated with mods {}", key, mods);
             win->m_Publisher.publish<KeyRepeatedEvent>(KeyRepeatedEvent(key, mods));
@@ -110,13 +120,13 @@ bool Window::init(std::shared_ptr<EventManager> event_manager)
             win->m_Publisher.publish<MouseButtonPressedEvent>(MouseButtonPressedEvent(button, mods));
 		}
 
-		if (action == GLFW_RELEASE)
+		else if (action == GLFW_RELEASE)
 		{
 			LOGINFO("Mouse button {} released with mods {}", button, mods);
             win->m_Publisher.publish<MouseButtonReleasedEvent>(MouseButtonReleasedEvent(button, mods));
 		}
 
-		if (action == GLFW_REPEAT)
+		else if (action == GLFW_REPEAT)
 		{
 		    LOGINFO("Mouse button {} repeated with mods {}", button, mods);
             win->m_Publisher.publish<MouseButtonRepeatedEvent>(MouseButtonRepeatedEvent(button, mods));
@@ -152,12 +162,12 @@ void Window::swapBuffers() const
     glfwPollEvents();
 }
 
-int Window::getWidth()
+int Window::getWidth() const
 {
     return m_WindowProperties.width;
 }
 
-int Window::getHeight()
+int Window::getHeight() const
 {
     return m_WindowProperties.height;
 }
