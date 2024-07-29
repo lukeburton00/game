@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "event_manager.hpp"
+#include "event_bus.hpp"
 #include "shader.hpp"
 #include "texture.hpp"
 #include "vertex.hpp"
@@ -13,15 +13,15 @@ public:
 	Renderer();
 	~Renderer();
 
-	void init(std::shared_ptr<EventManager> event_manager);
+	void init(std::shared_ptr<EventBus> eventBus);
 	void render();
 
 private:
 	uint32_t VBO;
 	uint32_t VAO;
 	uint32_t EBO;
-	uint32_t width;
-	uint32_t height;
+	uint32_t m_Width;
+	uint32_t m_Height;
 
 	float fov;
 
