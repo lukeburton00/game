@@ -10,7 +10,7 @@ class Shader
 public:
 	Shader(uint32_t id);
 	~Shader();
-	void Use();
+	void Use() const;
 
 	void SetBool(const std::string& name, bool value) const;
 	void SetInt(const std::string& name, int value) const;

@@ -11,7 +11,7 @@ public:
     Texture(uint32_t id);
     ~Texture();
     uint32_t GetID() const;
-    void Bind();
+    void Bind() const;
     static std::shared_ptr<Texture> LoadFromFile(const std::string& path);
 
 public:

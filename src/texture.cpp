@@ -21,7 +21,7 @@ uint32_t Texture::GetID() const
     return mID;
 }
 
-void Texture::Bind()
+void Texture::Bind() const
 {
     glBindTexture(GL_TEXTURE_2D, mID);
 }
