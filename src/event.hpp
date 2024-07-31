@@ -78,14 +78,14 @@ struct WindowMaximizedEvent : public Event
 
 struct MouseMovedEvent : public Event
 {
-    MouseMovedEvent(float x, float y)
+    MouseMovedEvent(double x, double y)
     {
         type = EventType::MouseMoved;
         this->x = x;
         this->y = y;
     }
 
-    float x, y;
+    double x, y;
 };
 
 struct MouseButtonPressedEvent : public Event
@@ -129,15 +129,15 @@ struct MouseButtonRepeatedEvent : public Event
 
 struct MouseWheelEvent : public Event
 {
-    MouseWheelEvent(float xoffset, float yoffset)
+    MouseWheelEvent(double xoffset, double yoffset)
     {
         type = EventType::MouseWheel;
         this->xoffset = xoffset;
         this->yoffset = yoffset;
     }
 
-    float xoffset;
-    float yoffset;
+    double xoffset;
+    double yoffset;
 };
 
 struct KeyPressedEvent : public Event
