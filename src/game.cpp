@@ -16,11 +16,6 @@ Game::Game() : m_EventBus(std::make_shared<EventBus>())
     m_isRunning = false;
 }
 
-Game::~Game()
-{
-
-}
-
 bool Game::initPaths()
 {
     auto exec_path = FileSystem::getExecPath();
@@ -57,7 +52,13 @@ bool Game::start()
 	const int HEIGHT = 480;
 	const std::string TITLE = "OpenGL";
 
-    m_window = Window(WIDTH, HEIGHT, TITLE);
+    WindowProperties props;
+    props.width = WIDTH;
+    props.height = HEIGHT;
+    props.title = TITLE;
+
+    
+    m_window = Window(props);
     if (!m_window.init(m_EventBus))
 	{
 		LOGCRITICAL("Failed to create window.");
@@ -92,14 +93,25 @@ void Game::run()
             {
                 m_isRunning = false;
             }
-        });
 
-    m_EventBus->subscribe(EventType::KeyPressed, [=](const std::shared_ptr<Event>& event)
-        {
-            auto e = std::static_pointer_cast<KeyPressedEvent>(event);  
-            if (e->key == (int)Input::KeyCode::F10)
+            else if (e->key == (int)Input::KeyCode::F10)
             {
-                m_window.toggleFullscreen();
+                m_window.setFullScreen(true);
+            }
+
+            else if (e->key == (int)Input::KeyCode::F11)
+            {
+                m_window.setFullScreen(false);
+            }
+
+            else if (e->key == (int)Input::KeyCode::F8)
+            {
+                m_window.setVSync(true);
+            }
+
+            else if (e->key == (int)Input::KeyCode::F9)
+            {
+                m_window.setVSync(false);
             }
         });
 
