@@ -39,6 +39,78 @@ bool Window::init(std::shared_ptr<EventBus> eventBus)
         return false;
 	}
 
+    setWindowHints();
+
+	if (!(m_Window = glfwCreateWindow(m_WindowProperties.width, m_WindowProperties.height, m_WindowProperties.title.c_str(), nullptr, nullptr)))
+	{
+		LOGCRITICAL("Failed to create GLFW window.");
+        glfwTerminate();
+        return false;
+	}
+
+    glfwMakeContextCurrent(m_Window);
+    gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+
+    setEventCallbacks();
+
+	LOGINFO("OpenGL version {}", (char*)glGetString(GL_VERSION));
+	LOGINFO("Graphics device: {}", (char*)glGetString(GL_RENDERER));
+
+	glViewport(0, 0, m_WindowProperties.width, m_WindowProperties.height);
+
+    return true;
+}
+
+void Window::clear(const glm::vec3& color) const
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearColor(color.x, color.y, color.z, 1.0f);
+}
+
+void Window::swapBuffers() const
+{
+    glfwSwapBuffers(m_Window);
+    glfwPollEvents();
+}
+
+int Window::getWidth() const
+{
+    return m_WindowProperties.width;
+}
+
+int Window::getHeight() const
+{
+    return m_WindowProperties.height;
+}
+
+void Window::toggleFullscreen()
+{
+    static int windowedWidth, windowedHeight, windowedPosX, windowedPosY;
+    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+    if (glfwGetWindowMonitor(m_Window)) // Currently fullscreen
+    {
+        glfwSetWindowMonitor(m_Window, nullptr, windowedPosX, windowedPosY, windowedWidth, windowedHeight, 0);
+    }
+    else // Currently windowed
+    {
+        glfwGetWindowSize(m_Window, &windowedWidth, &windowedHeight);
+        glfwGetWindowPos(m_Window, &windowedPosX, &windowedPosY);
+        glfwSetWindowMonitor(m_Window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+
+        LOGINFO("Fullscreen enabled");
+        m_EventBus->pushEvent(std::make_shared<WindowMaximizedEvent>());
+    }
+}
+
+GLFWwindow* Window::getNativeWindow() const
+{
+    return m_Window;
+}
+
+void Window::setWindowHints()
+{
     /* Select highest supported OpenGL version if on Mac OS,
     otherwise select the most recent version */
     #if defined(__APPLE__) || defined(__MACH__)
@@ -51,24 +123,15 @@ bool Window::init(std::shared_ptr<EventBus> eventBus)
     #endif
 
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+}
 
-	if (!(m_Window = glfwCreateWindow(m_WindowProperties.width, m_WindowProperties.height, m_WindowProperties.title.c_str(), nullptr, nullptr)))
-	{
-		LOGCRITICAL("Failed to create GLFW window.");
-        glfwTerminate();
-        return false;
-	}
-
-    glfwMakeContextCurrent(m_Window);
-
-    gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-
+void Window::setEventCallbacks()
+{
     glfwSetErrorCallback(glfwErrorCallback);
     glfwSetWindowUserPointer(m_Window, this);
 
     glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
     {
-        LOGINFO("Window resized to {} x {}", width, height);
         auto win = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
         if (width == 0 && height == 0)
         {
@@ -157,39 +220,4 @@ bool Window::init(std::shared_ptr<EventBus> eventBus)
         LOGINFO("Mouse scroll X: {} Y: {}", xoffset, yoffset);
         win->m_EventBus->pushEvent(std::make_shared<MouseWheelEvent>(xoffset, yoffset));
     });
-
-
-	LOGINFO("OpenGL version {}", (char*)glGetString(GL_VERSION));
-	LOGINFO("Graphics device: {}", (char*)glGetString(GL_RENDERER));
-
-	glViewport(0, 0, m_WindowProperties.width, m_WindowProperties.height);
-
-    return true;
-}
-
-void Window::clear(const glm::vec3& color) const
-{
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glClearColor(color.x, color.y, color.z, 1.0f);
-}
-
-void Window::swapBuffers() const
-{
-    glfwSwapBuffers(m_Window);
-    glfwPollEvents();
-}
-
-int Window::getWidth() const
-{
-    return m_WindowProperties.width;
-}
-
-int Window::getHeight() const
-{
-    return m_WindowProperties.height;
-}
-
-GLFWwindow* Window::getNativeWindow() const
-{
-    return m_Window;
 }

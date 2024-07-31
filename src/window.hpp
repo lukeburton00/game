@@ -32,7 +32,12 @@ public:
 
     int getWidth() const;
     int getHeight() const;
+    void toggleFullscreen();
     GLFWwindow* getNativeWindow() const;
+
+private:
+    void setWindowHints();
+    void setEventCallbacks();
 
 private:
     GLFWwindow* m_Window = nullptr;
