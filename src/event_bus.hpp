@@ -8,22 +8,23 @@
 
 #include "event.hpp"
 
+using EventCallback = std::function<void(const std::shared_ptr<Event>&)>;
+
 class EventBus
 {
 public:
     EventBus() = default;
+    EventBus(const EventBus&) = delete;
+    EventBus& operator= (const EventBus&) = delete;
 
-    using EventCallback = std::function<void(const std::shared_ptr<Event>&)>;
-
-    void subscribe(EventType type, const EventCallback callback);
-
+    void subscribe(EventType type, const EventCallback& callback);
     void pushEvent(const std::shared_ptr<Event>& event);
-
     void processEventQueue();
 
 private:
-    void dispatch(std::shared_ptr<Event>& event);
+    void dispatch(const std::shared_ptr<Event>& event);
 
+private:
     std::queue<std::shared_ptr<Event>> m_EventQueue;
-    std::unordered_map<EventType, std::vector<std::function<void(const std::shared_ptr<Event>&)>>> m_Subscribers;
+    std::unordered_map<EventType, std::vector<EventCallback>> m_Subscribers;
 };
