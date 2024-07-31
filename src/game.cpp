@@ -14,10 +14,6 @@ Game::Game() : m_EventBus(std::make_shared<EventBus>())
 {
     m_instance = this;
     m_isRunning = false;
-    m_EventBus->subscribe(EventType::WindowClose, [=](const std::shared_ptr<Event>& event)
-        {
-            m_isRunning = false;
-        });
 }
 
 Game::~Game()
@@ -84,6 +80,29 @@ Game& Game::get()
 
 void Game::run()
 {
+    m_EventBus->subscribe(EventType::WindowClose, [=](const std::shared_ptr<Event>& event)
+        {
+            m_isRunning = false;
+        });
+
+    m_EventBus->subscribe(EventType::KeyPressed, [=](const std::shared_ptr<Event>& event)
+        {
+            auto e = std::static_pointer_cast<KeyPressedEvent>(event);  
+            if (e->key == (int)Input::KeyCode::Escape)
+            {
+                m_isRunning = false;
+            }
+        });
+
+    m_EventBus->subscribe(EventType::KeyPressed, [=](const std::shared_ptr<Event>& event)
+        {
+            auto e = std::static_pointer_cast<KeyPressedEvent>(event);  
+            if (e->key == (int)Input::KeyCode::F10)
+            {
+                m_window.toggleFullscreen();
+            }
+        });
+
     while(m_isRunning)
 	{
 		update();
@@ -99,10 +118,7 @@ void Game::processEvents()
 
 void Game::update()
 {
-    if (Input::isKeyPressed(Input::KeyCode::Escape))
-    {
-        m_isRunning = false;
-    }
+    
 }
 
 void Game::render()
