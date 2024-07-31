@@ -10,9 +10,11 @@ static void glfwErrorCallback(int error, const char* message)
     LOGCRITICAL("GLFW Error: {} - {}", error, message);
 }
 
-Window::Window(const uint32_t& width, const uint32_t& height, const std::string& title)
+Window::Window(const WindowProperties& properties)
+: m_WindowProperties(properties)
 {
-    m_WindowProperties = WindowProperties(width, height, title);
+    m_isFullScreen = false;
+    m_isVSync = true;    
 }
 
 Window::~Window()
@@ -57,6 +59,7 @@ bool Window::init(std::shared_ptr<EventBus> eventBus)
 	LOGINFO("Graphics device: {}", (char*)glGetString(GL_RENDERER));
 
 	glViewport(0, 0, m_WindowProperties.width, m_WindowProperties.height);
+    glfwSwapInterval(1);
 
     return true;
 }
@@ -73,35 +76,67 @@ void Window::swapBuffers() const
     glfwPollEvents();
 }
 
-int Window::getWidth() const
+uint32_t Window::getWidth() const
 {
     return m_WindowProperties.width;
 }
 
-int Window::getHeight() const
+uint32_t Window::getHeight() const
 {
     return m_WindowProperties.height;
 }
 
-void Window::toggleFullscreen()
+void Window::setFullScreen(bool shouldEnable)
 {
-    static int windowedWidth, windowedHeight, windowedPosX, windowedPosY;
-    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-
-    if (glfwGetWindowMonitor(m_Window)) // Currently fullscreen
+    if (m_isFullScreen && shouldEnable)
     {
-        glfwSetWindowMonitor(m_Window, nullptr, windowedPosX, windowedPosY, windowedWidth, windowedHeight, 0);
+        LOGERROR("setFullScreen: Fullscreen already enabled.");
+        return;
     }
-    else // Currently windowed
+
+    if (!m_isFullScreen && !shouldEnable)
     {
+        LOGERROR("setFullScreen: Fullscreen already disabled.");
+        return;
+    }
+
+    static int windowedWidth, windowedHeight, windowedPosX, windowedPosY;
+    
+    if (shouldEnable)
+    {
+        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
         glfwGetWindowSize(m_Window, &windowedWidth, &windowedHeight);
         glfwGetWindowPos(m_Window, &windowedPosX, &windowedPosY);
         glfwSetWindowMonitor(m_Window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
 
-        LOGINFO("Fullscreen enabled");
         m_EventBus->pushEvent(std::make_shared<WindowMaximizedEvent>());
     }
+
+    else
+    {
+        glfwSetWindowMonitor(m_Window, nullptr, windowedPosX, windowedPosY, windowedWidth, windowedHeight, 0);
+    }
+
+    m_isFullScreen = shouldEnable;
+}
+
+void Window::setVSync(bool shouldEnable)
+{
+    if (m_isVSync && shouldEnable)
+    {
+        LOGERROR("setVSync: VSync already enabled.");
+        return;
+    }
+
+    if (!m_isVSync && !shouldEnable)
+    {
+        LOGERROR("setVSync: VSync already disabled.");
+        return;
+    }
+
+    glfwSwapInterval(shouldEnable);
+    m_isVSync = shouldEnable;
 }
 
 GLFWwindow* Window::getNativeWindow() const
@@ -180,7 +215,7 @@ void Window::setEventCallbacks()
 			}
 
 			default:
-			    break;
+                break;
 		}
     });
 
@@ -207,10 +242,11 @@ void Window::setEventCallbacks()
 			{
     		    LOGINFO("Mouse button {} repeated with mods {}", button, mods);
                 win->m_EventBus->pushEvent(std::make_shared<MouseButtonRepeatedEvent>(button, mods));
+                break;
 			}
 
-			default:
-			    break;
+			default: 
+                break;
 		}
     });
 
@@ -219,5 +255,12 @@ void Window::setEventCallbacks()
         auto win = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
         LOGINFO("Mouse scroll X: {} Y: {}", xoffset, yoffset);
         win->m_EventBus->pushEvent(std::make_shared<MouseWheelEvent>(xoffset, yoffset));
+    });
+
+    glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xpos, double ypos)
+    {
+        auto win = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+        LOGINFO("Mouse moved to {}, {}", xpos, ypos);
+
     });
 }
