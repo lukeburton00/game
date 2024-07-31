@@ -11,10 +11,6 @@
 
 struct WindowProperties
 {
-    WindowProperties() = default;
-    WindowProperties(const uint32_t& width, const uint32_t& height, const std::string& title)
-        : width(width), height(height), title(title){}
-
     uint32_t width, height;
     std::string title;
 };
@@ -23,16 +19,18 @@ class Window
 {
 public:
     Window() = default;
-    Window(const uint32_t& width, const uint32_t& height, const std::string& title);
+    Window(const WindowProperties& properties);
     ~Window();
 
     bool init(std::shared_ptr<EventBus> eventBus);
     void clear(const glm::vec3& color) const;
     void swapBuffers() const;
 
-    int getWidth() const;
-    int getHeight() const;
-    void toggleFullscreen();
+    void setFullScreen(bool shouldEnable);
+    void setVSync(bool shouldEnable);
+
+    uint32_t getWidth() const;
+    uint32_t getHeight() const;
     GLFWwindow* getNativeWindow() const;
 
 private:
@@ -40,6 +38,9 @@ private:
     void setEventCallbacks();
 
 private:
+    bool m_isFullScreen;
+    bool m_isVSync;
+
     GLFWwindow* m_Window = nullptr;
     WindowProperties m_WindowProperties;
     std::shared_ptr<EventBus> m_EventBus;
