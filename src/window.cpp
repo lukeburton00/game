@@ -244,7 +244,7 @@ void Window::setGLFWCallbacks()
     {
         auto win = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
         LOGINFO("Mouse moved to {}, {}", xpos, ypos);
-
+        win->m_properties.eventCallback(std::make_shared<MouseMovedEvent>(xpos, ypos));
     });
 }
 
