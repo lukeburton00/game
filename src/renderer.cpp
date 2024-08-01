@@ -130,15 +130,33 @@ void Renderer::render()
 {
     if (Input::isKeyPressed(Input::KeyCode::W))
     {
-        fov++;
-        LOGINFO(fov);
+		view = glm::translate(view, glm::vec3(0.0f, 0.0f, 0.1f));
     }
 
     if (Input::isKeyPressed(Input::KeyCode::S))
     {
-        fov--;
-        LOGINFO(fov);
+		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -0.1f));
     }
+
+	if (Input::isKeyPressed(Input::KeyCode::A))
+	{
+		view = glm::translate(view, glm::vec3(0.1f, 0.0f, 0.0f));
+	}
+
+	if (Input::isKeyPressed(Input::KeyCode::D))
+	{
+		view = glm::translate(view, glm::vec3(-0.1f, 0.0f, 0.0f));
+	}
+
+	if (Input::isKeyPressed(Input::KeyCode::Q))
+	{
+		view = glm::translate(view, glm::vec3(0.0f, 0.1f, 0.0f));
+	}
+
+	if (Input::isKeyPressed(Input::KeyCode::E))
+	{
+		view = glm::translate(view, glm::vec3(0.0f, -0.1f, 0.0f));
+	}
 
     std::vector<glm::vec3> cubePositions = {
         glm::vec3( 0.0f,  0.0f,  0.0f),
@@ -170,7 +188,6 @@ void Renderer::render()
     for (int i = 0; i < 10; i++)
     {
         model = glm::mat4(1.f);
-        model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.f, 1.f, 0.f));
        	model = glm::translate(model, cubePositions[i]);
 
        	shader->SetMat4("model", model);
