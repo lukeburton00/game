@@ -1,6 +1,5 @@
 #include "renderer.hpp"
 
-#include <excpt.h>
 #include <memory>
 #include <vector>
 
