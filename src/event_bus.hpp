@@ -8,8 +8,6 @@
 
 #include "event.hpp"
 
-using EventCallback = std::function<void(const std::shared_ptr<Event>&)>;
-
 class EventBus
 {
 public:

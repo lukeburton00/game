@@ -1,5 +1,8 @@
 #pragma once
 
+struct Event;
+using EventCallback = std::function<void(const std::shared_ptr<Event>&)>;
+
 enum class EventType
 {
     WindowResize,
