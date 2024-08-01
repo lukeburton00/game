@@ -1,4 +1,4 @@
-#include "event_bus.hpp"
+#include "eventBus.hpp"
 
 void EventBus::subscribe(EventType type, const EventCallback& callback)
 {

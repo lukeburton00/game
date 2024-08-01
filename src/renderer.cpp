@@ -8,8 +8,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "event.hpp"
-#include "event_bus.hpp"
 #include "game.hpp"
 #include "input.hpp"
 #include "keycodes.hpp"

@@ -4,8 +4,6 @@
 
 #include "log.hpp"
 #include "input.hpp"
-#include "event.hpp"
-#include "event_bus.hpp"
 #include "filesystem.hpp"
 
 Game* Game::m_instance = nullptr;
@@ -66,7 +64,7 @@ bool Game::start()
 		LOGCRITICAL("Failed to create window.");
 		return false;
 	}
-    
+
     m_window.setEventCallback([this](const std::shared_ptr<Event>& event)
     {
         this->onEvent(event);  

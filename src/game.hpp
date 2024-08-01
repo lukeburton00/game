@@ -2,7 +2,7 @@
 
 #include "window.hpp"
 #include "renderer.hpp"
-#include "event_bus.hpp"
+#include "eventBus.hpp"
 
 class Game
 {

@@ -2,10 +2,10 @@
 
 #include <vector>
 
-#include "event_bus.hpp"
 #include "shader.hpp"
 #include "texture.hpp"
 #include "vertex.hpp"
+#include "eventBus.hpp"
 
 class Renderer
 {
