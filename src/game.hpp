@@ -23,6 +23,7 @@ private:
     void processEvents();
     void update();
     void render();
+    void onEvent(const std::shared_ptr<Event>& event);
 
 private:
     Window m_window;

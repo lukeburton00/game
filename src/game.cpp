@@ -59,11 +59,18 @@ bool Game::start()
 
     
     m_window = Window(props);
-    if (!m_window.init(m_EventBus))
+
+
+    if (!m_window.init())
 	{
 		LOGCRITICAL("Failed to create window.");
 		return false;
 	}
+    
+    m_window.setEventCallback([this](const std::shared_ptr<Event>& event)
+    {
+        this->onEvent(event);  
+    });
 
 	Input::setWindow(m_window.getNativeWindow());
     renderer.init(m_EventBus);
@@ -140,4 +147,9 @@ void Game::render()
     renderer.render();
 
     m_window.swapBuffers();
+}
+
+void Game::onEvent(const std::shared_ptr<Event>& event)
+{
+    m_EventBus->pushEvent(event);
 }

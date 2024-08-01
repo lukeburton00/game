@@ -11,7 +11,7 @@ static void glfwErrorCallback(int error, const char* message)
 }
 
 Window::Window(const WindowProperties& properties)
-: m_WindowProperties(properties)
+: m_properties(properties)
 {
     m_isFullScreen = false;
     m_isVSync = true;    
@@ -23,18 +23,8 @@ Window::~Window()
     glfwTerminate();
 }
 
-bool Window::init(std::shared_ptr<EventBus> eventBus)
+bool Window::init()
 {
-    m_EventBus = eventBus;
-
-    m_EventBus->subscribe(EventType::WindowResize, [=](const std::shared_ptr<Event>& event)
-        {
-            auto e = std::static_pointer_cast<WindowResizeEvent>(event);
-            m_WindowProperties.width = e->width;
-            m_WindowProperties.height = e->height;
-            glViewport(0, 0, e->width, e->height);
-        });
-
 	if (!glfwInit())
 	{
 		LOGCRITICAL("Failed to initialize GLFW.");
@@ -43,7 +33,7 @@ bool Window::init(std::shared_ptr<EventBus> eventBus)
 
     setWindowHints();
 
-	if (!(m_Window = glfwCreateWindow(m_WindowProperties.width, m_WindowProperties.height, m_WindowProperties.title.c_str(), nullptr, nullptr)))
+	if (!(m_Window = glfwCreateWindow(m_properties.width, m_properties.height, m_properties.title.c_str(), nullptr, nullptr)))
 	{
 		LOGCRITICAL("Failed to create GLFW window.");
         glfwTerminate();
@@ -53,12 +43,12 @@ bool Window::init(std::shared_ptr<EventBus> eventBus)
     glfwMakeContextCurrent(m_Window);
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
-    setEventCallbacks();
+    setGLFWCallbacks();
 
 	LOGINFO("OpenGL version {}", (char*)glGetString(GL_VERSION));
 	LOGINFO("Graphics device: {}", (char*)glGetString(GL_RENDERER));
 
-	glViewport(0, 0, m_WindowProperties.width, m_WindowProperties.height);
+	glViewport(0, 0, m_properties.width, m_properties.height);
     glfwSwapInterval(1);
 
     return true;
@@ -78,12 +68,12 @@ void Window::swapBuffers() const
 
 uint32_t Window::getWidth() const
 {
-    return m_WindowProperties.width;
+    return m_properties.width;
 }
 
 uint32_t Window::getHeight() const
 {
-    return m_WindowProperties.height;
+    return m_properties.height;
 }
 
 void Window::setFullScreen(bool shouldEnable)
@@ -110,7 +100,7 @@ void Window::setFullScreen(bool shouldEnable)
         glfwGetWindowPos(m_Window, &windowedPosX, &windowedPosY);
         glfwSetWindowMonitor(m_Window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
 
-        m_EventBus->pushEvent(std::make_shared<WindowMaximizedEvent>());
+        m_properties.eventCallback(std::make_shared<WindowMaximizedEvent>());
     }
 
     else
@@ -144,23 +134,12 @@ GLFWwindow* Window::getNativeWindow() const
     return m_Window;
 }
 
-void Window::setWindowHints()
+void Window::setEventCallback(EventCallback callback)
 {
-    /* Select highest supported OpenGL version if on Mac OS,
-    otherwise select the most recent version */
-    #if defined(__APPLE__) || defined(__MACH__)
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    #else
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-    #endif
-
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    m_properties.eventCallback = callback;
 }
 
-void Window::setEventCallbacks()
+void Window::setGLFWCallbacks()
 {
     glfwSetErrorCallback(glfwErrorCallback);
     glfwSetWindowUserPointer(m_Window, this);
@@ -171,21 +150,25 @@ void Window::setEventCallbacks()
         if (width == 0 && height == 0)
         {
             LOGINFO("Window minimized", width, height);
-            win->m_EventBus->pushEvent(std::make_shared<WindowMinimizedEvent>());
+            win->m_properties.eventCallback(std::make_shared<WindowMinimizedEvent>());
         }
 
         else
         {
             LOGINFO("Window resized to {} x {}", width, height);
-            win->m_EventBus->pushEvent(std::make_shared<WindowResizeEvent>(width, height));
+            win->m_properties.eventCallback(std::make_shared<WindowResizeEvent>(width, height));
         }
+
+        win->m_properties.width = width;
+        win->m_properties.height = height;
+        glViewport(0, 0, width, height);
     });
 
     glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window)
     {
         auto win = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
         LOGINFO("Window closed");
-        win->m_EventBus->pushEvent(std::make_shared<WindowCloseEvent>());
+        win->m_properties.eventCallback(std::make_shared<WindowCloseEvent>());
     });
 
     glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -196,21 +179,21 @@ void Window::setEventCallbacks()
 		    case GLFW_PRESS:
 			{
     			LOGINFO("Key {} pressed with mods {}", key, mods);
-                win->m_EventBus->pushEvent(std::make_shared<KeyPressedEvent>(key, mods));
+                win->m_properties.eventCallback(std::make_shared<KeyPressedEvent>(key, mods));
                 break;
 			}
 
 			case GLFW_RELEASE:
 			{
     			LOGINFO("Key {} released with mods {}", key, mods);
-    			win->m_EventBus->pushEvent(std::make_shared<KeyReleasedEvent>(key, mods));
+    			win->m_properties.eventCallback(std::make_shared<KeyReleasedEvent>(key, mods));
                 break;
 			}
 
 			case GLFW_REPEAT:
 			{
     		    LOGINFO("Key {} repeated with mods {}", key, mods);
-    			win->m_EventBus->pushEvent(std::make_shared<KeyRepeatedEvent>(key, mods));
+    			win->m_properties.eventCallback(std::make_shared<KeyRepeatedEvent>(key, mods));
                 break;
 			}
 
@@ -227,21 +210,21 @@ void Window::setEventCallbacks()
 		    case GLFW_PRESS:
 			{
     			LOGINFO("Mouse button {} pressed with mods {}", button, mods);
-                win->m_EventBus->pushEvent(std::make_shared<MouseButtonPressedEvent>(button, mods));
+                win->m_properties.eventCallback(std::make_shared<MouseButtonPressedEvent>(button, mods));
                 break;
 			}
 
 			case GLFW_RELEASE:
 			{
     			LOGINFO("Mouse button {} released with mods {}", button, mods);
-                win->m_EventBus->pushEvent(std::make_shared<MouseButtonReleasedEvent>(button, mods));
+                win->m_properties.eventCallback(std::make_shared<MouseButtonReleasedEvent>(button, mods));
                 break;
 			}
 
 			case GLFW_REPEAT:
 			{
     		    LOGINFO("Mouse button {} repeated with mods {}", button, mods);
-                win->m_EventBus->pushEvent(std::make_shared<MouseButtonRepeatedEvent>(button, mods));
+                win->m_properties.eventCallback(std::make_shared<MouseButtonRepeatedEvent>(button, mods));
                 break;
 			}
 
@@ -254,7 +237,7 @@ void Window::setEventCallbacks()
     {
         auto win = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
         LOGINFO("Mouse scroll X: {} Y: {}", xoffset, yoffset);
-        win->m_EventBus->pushEvent(std::make_shared<MouseWheelEvent>(xoffset, yoffset));
+        win->m_properties.eventCallback(std::make_shared<MouseWheelEvent>(xoffset, yoffset));
     });
 
     glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xpos, double ypos)
@@ -263,4 +246,20 @@ void Window::setEventCallbacks()
         LOGINFO("Mouse moved to {}, {}", xpos, ypos);
 
     });
+}
+
+void Window::setWindowHints()
+{
+    /* Select highest supported OpenGL version if on Mac OS,
+    otherwise select the most recent version */
+    #if defined(__APPLE__) || defined(__MACH__)
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    #else
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    #endif
+
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 }
