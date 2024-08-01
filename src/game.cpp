@@ -92,30 +92,31 @@ void Game::run()
 
     m_EventBus->subscribe(EventType::KeyPressed, [=](const std::shared_ptr<Event>& event)
         {
-            auto e = std::static_pointer_cast<KeyPressedEvent>(event);  
-            if (e->key == (int)Input::KeyCode::Escape)
+            auto e = std::static_pointer_cast<KeyPressedEvent>(event);
+            switch ((Input::KeyCode)e->key)
             {
+            case Input::KeyCode::Escape:
                 m_isRunning = false;
-            }
+                break;
 
-            else if (e->key == (int)Input::KeyCode::F10)
-            {
-                m_window.setFullScreen(true);
-            }
-
-            else if (e->key == (int)Input::KeyCode::F11)
-            {
-                m_window.setFullScreen(false);
-            }
-
-            else if (e->key == (int)Input::KeyCode::F8)
-            {
+            case Input::KeyCode::F8:
                 m_window.setVSync(true);
-            }
+                break;
 
-            else if (e->key == (int)Input::KeyCode::F9)
-            {
+            case Input::KeyCode::F9:
                 m_window.setVSync(false);
+                break;
+
+            case Input::KeyCode::F10:
+                m_window.setFullScreen(true);
+                break;
+
+            case Input::KeyCode::F11:
+                m_window.setFullScreen(false);
+                break;
+
+            default:
+                break;
             }
         });
 
