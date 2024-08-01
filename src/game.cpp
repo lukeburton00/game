@@ -70,10 +70,8 @@ bool Game::start()
         this->onEvent(event);  
     });
 
-	Input::setWindow(m_window.getNativeWindow());
     renderer.init(m_EventBus);
 
-    m_isRunning = true;
     run();
 
     return true;
@@ -86,6 +84,7 @@ Game& Game::get()
 
 void Game::run()
 {
+    m_isRunning = true;
     m_EventBus->subscribe(EventType::WindowClose, [=](const std::shared_ptr<Event>& event)
         {
             m_isRunning = false;
