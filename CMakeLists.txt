@@ -13,7 +13,11 @@ set(SRC
  "src/game.cpp"
  "src/input.cpp"
  "src/window.cpp"
- "src/renderer.cpp"
+ "src/renderer/renderer.cpp"
+ "src/renderer/camera.cpp"
+ "src/renderer/gl_element_buffer.cpp"
+ "src/renderer/gl_vertex_array.cpp"
+ "src/renderer/gl_vertex_buffer.cpp"
  "src/shader.cpp"
  "src/texture.cpp"
  "src/eventBus.cpp"
@@ -34,6 +38,7 @@ add_subdirectory("vendor/spdlog")
 add_subdirectory("vendor/whereami")
 
 target_include_directories(${PROJECT_NAME}
+	PRIVATE "src"
 	PRIVATE "vendor/glm"
 	PRIVATE "vendor/glad/include"
 	PRIVATE "vendor/glfw/include"

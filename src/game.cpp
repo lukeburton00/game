@@ -55,9 +55,7 @@ bool Game::start()
     props.height = HEIGHT;
     props.title = TITLE;
 
-    
     m_window = Window(props);
-
 
     if (!m_window.init())
 	{
@@ -71,6 +69,8 @@ bool Game::start()
     });
 
     renderer.init(m_EventBus);
+
+    camera = Camera(glm::vec2(0, 0), m_window.getWidth(), m_window.getHeight());
 
     run();
 
@@ -135,14 +135,48 @@ void Game::processEvents()
 
 void Game::update()
 {
+    if (Input::isKeyPressed(Input::KeyCode::W))
+    {
+        camera.position.y += 1;
+    }    
     
+    if (Input::isKeyPressed(Input::KeyCode::A))
+    {
+        camera.position.x -= 1;
+    }    
+    
+    if (Input::isKeyPressed(Input::KeyCode::S))
+    {
+        camera.position.y -= 1;
+    }    
+    
+    if (Input::isKeyPressed(Input::KeyCode::D))
+    {
+        camera.position.x += 1;
+    }
+
+    camera.Update();
 }
 
 void Game::render()
 {
     m_window.clear(glm::vec3(0.5f, 0.5f, 0.5f));
 
-    renderer.render();
+    renderer.beginBatch(camera);
+    
+    // Render a batched set of i * j textured quads
+    for (int i = 0; i < 250; i++)
+    {
+        for (int j = 0; j < 250; j++)
+        {
+            bool isInCameraBounds = (i * 50.f < camera.position.x + m_window.getWidth() || j * 50.f < camera.position.y + m_window.getHeight());
+            
+            if (isInCameraBounds)
+                renderer.pushQuad(glm::vec2(0.f + (i * 50.f), 0.f + (j * 50.f)), glm::vec2(50, 50), glm::vec4(1.f, 1.f, 1.f, 1.f), glm::vec2(0, 0), glm::vec2(100, 100));
+        }
+    }
+
+    renderer.flush();
 
     m_window.swapBuffers();
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "window.hpp"
-#include "renderer.hpp"
+#include "renderer/renderer.hpp"
 #include "eventBus.hpp"
 
 class Game
@@ -30,6 +30,7 @@ private:
     bool m_isRunning;
 
     Renderer renderer;
+    Camera camera;
 
     std::shared_ptr<EventBus> m_EventBus;
     static Game* m_instance;
