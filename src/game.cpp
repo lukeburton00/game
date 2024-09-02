@@ -84,7 +84,6 @@ Game& Game::get()
 
 void Game::run()
 {
-    m_isRunning = true;
     m_EventBus->subscribe(EventType::WindowClose, [=](const std::shared_ptr<Event>& event)
         {
             m_isRunning = false;
@@ -119,7 +118,19 @@ void Game::run()
                 break;
             }
         });
+    
+    // TEST: Render 1,000,000 static textured quads
+    for (int i = 0; i < 1000; i++)
+    {
+        for (int j = 0; j < 1000; j++)
+        {
+            renderer.pushStaticQuad(glm::vec2(0.f + (i * 50.f), 0.f + (j * 50.f)), glm::vec2(50, 50), glm::vec4(1.f, 1.f, 1.f, 1.f), glm::vec2(0, 0), glm::vec2(100, 100));
+        }
+    }
 
+    renderer.bufferStaticData();
+
+    m_isRunning = true;
     while(m_isRunning)
 	{
 		update();
@@ -137,7 +148,7 @@ void Game::update()
 {
     if (Input::isKeyPressed(Input::KeyCode::W))
     {
-        camera.position.y += 1;
+        camera.position.y -= 1;
     }    
     
     if (Input::isKeyPressed(Input::KeyCode::A))
@@ -147,7 +158,7 @@ void Game::update()
     
     if (Input::isKeyPressed(Input::KeyCode::S))
     {
-        camera.position.y -= 1;
+        camera.position.y += 1;
     }    
     
     if (Input::isKeyPressed(Input::KeyCode::D))
@@ -161,20 +172,7 @@ void Game::update()
 void Game::render()
 {
     m_window.clear(glm::vec3(0.5f, 0.5f, 0.5f));
-
     renderer.beginBatch(camera);
-    
-    // Render a batched set of i * j textured quads
-    for (int i = 0; i < 250; i++)
-    {
-        for (int j = 0; j < 250; j++)
-        {
-            bool isInCameraBounds = (i * 50.f < camera.position.x + m_window.getWidth() || j * 50.f < camera.position.y + m_window.getHeight());
-            
-            if (isInCameraBounds)
-                renderer.pushQuad(glm::vec2(0.f + (i * 50.f), 0.f + (j * 50.f)), glm::vec2(50, 50), glm::vec4(1.f, 1.f, 1.f, 1.f), glm::vec2(0, 0), glm::vec2(100, 100));
-        }
-    }
 
     renderer.flush();
 
