@@ -18,7 +18,8 @@ enum class EventType
     MouseWheel,
     KeyPressed,
     KeyReleased,
-    KeyRepeated
+    KeyRepeated,
+    CameraMoved
 };
 
 struct Event
@@ -180,4 +181,12 @@ struct KeyRepeatedEvent : public Event
 
     int key;
     int mods;
+};
+
+struct CameraMovedEvent : public Event
+{
+    CameraMovedEvent()
+    {
+        type = EventType::CameraMoved;
+    }
 };
