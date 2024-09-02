@@ -24,7 +24,7 @@ void GLVertexBuffer::Init()
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, color));
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 400000, nullptr, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 4000000, nullptr, GL_DYNAMIC_DRAW);
 }
 
 void GLVertexBuffer::Bind()

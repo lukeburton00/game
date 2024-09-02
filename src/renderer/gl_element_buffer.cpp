@@ -15,7 +15,7 @@ void GLElementBuffer::Init()
 {
 	glGenBuffers(1, &m_ID);
 	Bind();
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * 600000, nullptr, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32_t) * 6000000, nullptr, GL_DYNAMIC_DRAW);
 }
 
 void GLElementBuffer::Bind()
