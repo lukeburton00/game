@@ -14,6 +14,7 @@ public:
 
     void Bind();
     void Unbind();
+    uint32_t getID() { return m_ID; }
 
 private:
     uint32_t m_ID = 0;
