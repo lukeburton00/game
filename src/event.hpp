@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 struct Event;
 using EventCallback = std::function<void(const std::shared_ptr<Event>&)>;
 
