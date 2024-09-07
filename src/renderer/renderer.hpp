@@ -4,11 +4,7 @@
 #include "camera.hpp"
 #include "shader.hpp"
 #include "texture.hpp"
-#include "gl_vertex_array.hpp"
-#include "gl_vertex_buffer.hpp"
-#include "gl_element_buffer.hpp"
 
-#include "glm/glm.hpp"
 #include "static_batch.hpp"
 
 class Renderer
